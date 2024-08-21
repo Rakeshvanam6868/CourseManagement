@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { fetchCourseInstances, deleteCourseInstance } from '../api';
 import { Link } from 'react-router-dom';
 import Button from './Button';
@@ -6,21 +6,20 @@ import InputBox from './InputBox';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
 
-const CourseInstanceList = ({ year, semester }) => {
+const CourseInstanceList = () => {
+  const [year, setYear] = useState('');
+  const [semester, setSemester] = useState('1'); // Default to semester 1
   const [instances, setInstances] = useState([]);
 
-  useEffect(() => {
-    const getInstances = async () => {
-      try {
-        const response = await fetchCourseInstances(year, semester);
-        setInstances(Array.isArray(response.data) ? response.data : []);
-      } catch (error) {
-        console.error('Error fetching course instances:', error);
-        setInstances([]);
-      }
-    };
-    getInstances();
-  }, [year, semester]);
+  const getInstances = async () => {
+    try {
+      const response = await fetchCourseInstances(year, semester);
+      setInstances(Array.isArray(response.data) ? response.data : []);
+    } catch (error) {
+      console.error('Error fetching course instances:', error);
+      setInstances([]);
+    }
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -31,11 +30,36 @@ const CourseInstanceList = ({ year, semester }) => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (year && semester) {
+      getInstances();
+    } else {
+      alert('Please enter both year and semester.');
+    }
+  };
+
   return (
     <div className="flex items-center flex-col mt-[100px]">
-      <div className="mb-5 flex">
-        <InputBox id="Year" name="Year" width="130px" />
-        <input type="search" placeholder="Select course  ^" className="ml-4 p-2 border" />
+      <form onSubmit={handleSubmit} className="mb-5 flex gap-14 items-center ml-[-400px]">
+        <InputBox 
+          id="Year"
+          name="Year"
+          width="130px"
+          label="Year"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+        />
+        <select
+          id="Semester"
+          name="Semester"
+          value={semester}
+          onChange={(e) => setSemester(e.target.value)}
+          className="ml-4 p-2 text-xl"
+        >
+          <option value="1">Semester 1</option>
+          <option value="2">Semester 2</option>
+        </select>
         <Button
           title="List Instances"
           width="222px"
@@ -45,17 +69,18 @@ const CourseInstanceList = ({ year, semester }) => {
           borderRadius="14px"
           background="blue"
           textColor="#ffffff"
-          textsize="24px"
+          textSize="24px"
           weight="600"
+          type="submit"
         />
-      </div>
-      <div className="w-[80%]">
+      </form>
+      <div className="w-[80%] mb-20">
         <table className="w-full border-collapse">
           <thead>
             <tr>
               <th className="bg-blue-600 text-white text-left p-2">Course Title</th>
-              <th className="bg-blue-600 text-white text-left p-2">Course Code</th>
               <th className="bg-blue-600 text-white text-left p-2">Year-Semester</th>
+              <th className="bg-blue-600 text-white text-left p-2">Code</th>
               <th className="bg-blue-600 text-white text-left p-2">Actions</th>
             </tr>
           </thead>
@@ -64,8 +89,8 @@ const CourseInstanceList = ({ year, semester }) => {
               instances.map((instance, index) => (
                 <tr key={instance.id} className={index % 2 === 0 ? '' : 'bg-blue-100'}>
                   <td className="border-r border-blue-400 p-2">{instance.course.title}</td>
-                  <td className="border-r border-blue-400 p-2">{instance.course.code}</td>
                   <td className="border-r border-blue-400 p-2">{instance.year + "-" + instance.semester}</td>
+                  <td className="border-r border-blue-400 p-2">{instance.course.code}</td>
                   <td className="p-2">
                     <div className="flex items-center justify-around gap-5">
                       <Link to={`/instances/${instance.year}/${instance.semester}/${instance.id}`}>

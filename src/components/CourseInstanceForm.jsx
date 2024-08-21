@@ -12,30 +12,39 @@ const CourseInstanceForm = ({ onInstanceCreated }) => {
 
     useEffect(() => {
         const getCourses = async () => {
-            const response = await fetchCourses();
-            setCourses(response.data);
+            try {
+                const response = await fetchCourses();
+                setCourses(response.data);
+            } catch (error) {
+                console.error("Error fetching courses:", error);
+            }
         };
         getCourses();
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+    
         if (!courseId) {
             alert("Please select a course before submitting.");
             return;
         }
-
+    
         try {
             const result = await createCourseInstance({ 
                 year: year.trim(),
                 semester: semester.trim(),
                 course: {
-                    id: parseInt(courseId) // Wrap courseId in a course object and ensure it's an integer
+                    id: parseInt(courseId, 10)
                 }
             });
             console.log("Course instance created:", result);
-            onInstanceCreated();
+    
+            // Check if onInstanceCreated is provided and is a function
+            if (typeof onInstanceCreated === 'function') {
+                onInstanceCreated(result);
+            }
+    
             // Reset form fields
             setYear('');
             setSemester('');
@@ -46,13 +55,14 @@ const CourseInstanceForm = ({ onInstanceCreated }) => {
             alert('Failed to create course instance. Please try again.');
         }
     };
+    
 
     return (
         <form 
             onSubmit={handleSubmit} 
             className="flex flex-col items-center gap-10 justify-center"
         >
-            <div className="flex gap-2">
+            <div className="flex gap-10">
                 <select
                     id="course-select"
                     value={courseId}
@@ -62,7 +72,7 @@ const CourseInstanceForm = ({ onInstanceCreated }) => {
                         setCourseId(selectedCourseId);
                         setCourseTitle(selectedCourse ? selectedCourse.title : '');
                     }}
-                    className="border border-gray-300 p-2 rounded"
+                    className="text-lg"
                 >
                     <option value="">Select Course</option>
                     {courses.length > 0 ? (
@@ -84,8 +94,10 @@ const CourseInstanceForm = ({ onInstanceCreated }) => {
                     borderRadius="7px"
                     background="blue"
                     textColor="#ffffff"
-                    textsize="24px"
+                    textSize="18px"
                     weight="600"
+                    type="button"
+                    onClick={() => window.location.reload()} // Refreshes the page to reload courses
                 />
             </div>
             <div className="flex items-center gap-10">
@@ -119,7 +131,7 @@ const CourseInstanceForm = ({ onInstanceCreated }) => {
                     borderRadius="14px"
                     background="blue"
                     textColor="#ffffff"
-                    textsize="24px"
+                    textSize="24px"
                     weight="600"
                     type="submit"
                 />

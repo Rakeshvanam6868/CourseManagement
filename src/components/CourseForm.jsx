@@ -35,7 +35,7 @@ const CourseForm = ({ onCourseCreated }) => {
   };
 
   return (
-    <div className="flex mt-[150px] justify-around items-center">
+    <div className="flex justify-around items-center mt-[150px] mb-[250px]">
       <form onSubmit={handleSubmit} className="flex-col flex items-center gap-10">
         <InputBox
           id="courseTitle"

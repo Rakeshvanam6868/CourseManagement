@@ -4,7 +4,6 @@ import CourseInstanceList from '../components/CourseInstanceList';
 
 const Home = () => (
   <div>
-    <h1>Course Management System</h1>
     <CourseForm onCourseCreated={() => window.location.reload()} />
     {/* <CourseInstanceForm onInstanceCreated={() => window.location.reload()} /> */}
     <CourseList />
